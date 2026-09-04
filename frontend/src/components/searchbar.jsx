@@ -1,11 +1,13 @@
+// src/components/searchbar.jsx
+
 import { useState } from "react";
 import {
   FaLink,
   FaDownload,
   FaSpinner,
   FaPaste,
-  FaYoutube,
   FaTimes,
+  FaCheck,
 } from "react-icons/fa";
 
 export default function SearchBar({
@@ -15,10 +17,17 @@ export default function SearchBar({
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
 
+  // ================================
+  // Validate URL
+  // ================================
 
   const validateUrl = (value) => {
     try {
       const link = new URL(value);
+
+      if (!["http:", "https:"].includes(link.protocol)) {
+        return false;
+      }
 
       const platforms = [
         "youtube.com",
@@ -29,28 +38,29 @@ export default function SearchBar({
         "instagram.com",
       ];
 
-      return platforms.some((site) =>
-        link.hostname.includes(site)
+      return platforms.some(
+        (site) =>
+          link.hostname === site ||
+          link.hostname.endsWith(`.${site}`)
       );
-
     } catch {
       return false;
     }
   };
 
-
+  // ================================
+  // Submit
+  // ================================
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const value = url.trim();
 
-
     if (!value) {
       setError("Please paste a video URL.");
       return;
     }
-
 
     if (!validateUrl(value)) {
       setError(
@@ -59,384 +69,349 @@ export default function SearchBar({
       return;
     }
 
-
     setError("");
     onSearch?.(value);
   };
 
-
+  // ================================
+  // Paste
+  // ================================
 
   const handlePaste = async () => {
     try {
-      const text =
-        await navigator.clipboard.readText();
+      const text = await navigator.clipboard.readText();
 
-
-      if (text) {
-        setUrl(text.trim());
-        setError("");
+      if (!text) {
+        setError("Clipboard is empty.");
+        return;
       }
 
+      const cleanText = text.trim();
+
+      setUrl(cleanText);
+
+      if (validateUrl(cleanText)) {
+        setError("");
+      } else {
+        setError(
+          "The pasted text is not a supported video URL."
+        );
+      }
     } catch {
-      setError(
-        "Clipboard permission denied."
-      );
+      setError("Clipboard permission denied.");
     }
   };
 
-
+  // ================================
+  // Clear
+  // ================================
 
   const clearUrl = () => {
     setUrl("");
     setError("");
   };
 
-
-
   return (
-    <section
-      id="search"
-      className="
-        mx-auto
-        mt-10
-        w-full
-        max-w-5xl
-        px-4
-        sm:px-6
-        lg:px-8
-      "
+    <form
+      onSubmit={handleSubmit}
+      className="w-full"
     >
+      {/* ================================
+          Input + Button
+      ================================= */}
 
       <div
         className="
-          overflow-hidden
-          rounded-3xl
-          border
-          border-slate-800
-          bg-slate-900
-          shadow-2xl
+          flex
+          flex-col
+          gap-3
+          sm:flex-row
         "
       >
+        {/* URL Input */}
 
+        <div className="relative min-w-0 flex-1">
+          {/* Link Icon */}
 
-        {/* Top Header */}
-
-        <div
-          className="
-            border-b
-            border-slate-800
-            bg-gradient-to-r
-            from-red-500/10
-            via-pink-500/10
-            to-purple-500/10
-            p-6
-          "
-        >
-
-          <div className="flex items-center gap-4">
-
-            <div
-              className="
-                flex
-                h-12
-                w-12
-                items-center
-                justify-center
-                rounded-xl
-                bg-red-500
-                text-white
-                shadow-lg
-              "
-            >
-              <FaYoutube className="text-xl" />
-            </div>
-
-
-            <div>
-
-              <h2
-                className="
-                  text-xl
-                  font-bold
-                  text-white
-                  sm:text-2xl
-                "
-              >
-                Download Videos
-              </h2>
-
-
-              <p
-                className="
-                  mt-1
-                  text-sm
-                  text-slate-400
-                "
-              >
-                Paste your video link and select quality.
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-
-        {/* Form */}
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5 p-6"
-        >
-
-
-          <label
-            htmlFor="video-url"
+          <FaLink
             className="
+              pointer-events-none
+              absolute
+              left-4
+              top-1/2
+              z-10
+              -translate-y-1/2
               text-sm
-              font-semibold
-              text-slate-300
+              text-slate-500
+              sm:text-base
             "
-          >
-            Video URL
-          </label>
+          />
 
+          <input
+            id="video-url"
+            type="url"
+            value={url}
+            disabled={loading}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setError("");
+            }}
+            placeholder="Paste your video URL here..."
+            aria-label="Video URL"
+            className="
+              h-14
+              w-full
+              rounded-2xl
+              border
+              border-white/10
+              bg-slate-950/80
+              pl-11
+              pr-24
+              text-sm
+              text-white
+              outline-none
+              transition
+              duration-200
 
+              placeholder:text-slate-600
+
+              hover:border-white/15
+
+              focus:border-red-500/60
+              focus:ring-4
+              focus:ring-red-500/10
+
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+
+              sm:h-16
+              sm:pl-12
+              sm:pr-28
+              sm:text-base
+            "
+          />
+
+          {/* Input Actions */}
 
           <div
             className="
+              absolute
+              right-2
+              top-1/2
               flex
-              flex-col
-              gap-4
-              lg:flex-row
+              -translate-y-1/2
+              items-center
+              gap-1.5
             "
           >
+            {/* Clear */}
 
-
-            {/* Input */}
-
-            <div className="relative flex-1">
-
-
-              <FaLink
-                className="
-                  absolute
-                  left-4
-                  top-1/2
-                  -translate-y-1/2
-                  text-slate-500
-                "
-              />
-
-
-              <input
-                id="video-url"
-                type="url"
-                value={url}
+            {url && (
+              <button
+                type="button"
+                onClick={clearUrl}
                 disabled={loading}
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  setError("");
-                }}
-                placeholder="Paste video URL here..."
+                aria-label="Clear URL"
                 className="
-                  w-full
-                  rounded-2xl
-                  border
-                  border-slate-700
-                  bg-slate-950
-                  py-4
-                  pl-12
-                  pr-28
-                  text-white
-                  outline-none
+                  flex
+                  h-9
+                  w-9
+                  items-center
+                  justify-center
+                  rounded-xl
+                  text-slate-500
                   transition
-
-                  placeholder:text-slate-500
-
-                  focus:border-red-500
-                  focus:ring-4
-                  focus:ring-red-500/20
-
+                  hover:bg-white/5
+                  hover:text-white
                   disabled:opacity-50
                 "
-              />
-
-
-
-              <div
-                className="
-                  absolute
-                  right-3
-                  top-1/2
-                  flex
-                  -translate-y-1/2
-                  gap-2
-                "
               >
+                <FaTimes className="text-xs" />
+              </button>
+            )}
 
-                {url && (
-                  <button
-                    type="button"
-                    onClick={clearUrl}
-                    className="
-                      rounded-lg
-                      bg-slate-800
-                      p-2
-                      text-slate-400
-                      hover:text-white
-                    "
-                  >
-                    <FaTimes />
-                  </button>
-                )}
-
-
-
-                <button
-                  type="button"
-                  onClick={handlePaste}
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    rounded-xl
-                    bg-slate-800
-                    px-3
-                    py-2
-                    text-sm
-                    text-slate-300
-                    hover:bg-slate-700
-                    hover:text-white
-                  "
-                >
-                  <FaPaste />
-                  <span className="hidden sm:block">
-                    Paste
-                  </span>
-                </button>
-
-
-              </div>
-
-            </div>
-
-
-
-
-            {/* Button */}
+            {/* Paste */}
 
             <button
-              type="submit"
+              type="button"
+              onClick={handlePaste}
               disabled={loading}
               className="
                 flex
+                h-9
                 items-center
-                justify-center
-                gap-3
-                rounded-2xl
-                bg-red-500
-                px-7
-                py-4
-                font-semibold
-                text-white
-                transition
-                hover:bg-red-600
-                active:scale-95
-
-                disabled:pointer-events-none
-                disabled:opacity-60
-              "
-            >
-
-              {loading ? (
-                <>
-                  <FaSpinner className="animate-spin" />
-                  Fetching
-                </>
-              ) : (
-                <>
-                  <FaDownload />
-                  Get Video
-                </>
-              )}
-
-            </button>
-
-
-          </div>
-
-
-
-
-          {/* Error */}
-
-          {error && (
-            <div
-              className="
+                gap-1.5
                 rounded-xl
-                border
-                border-red-500/30
-                bg-red-500/10
-                px-4
-                py-3
-                text-sm
-                text-red-400
+                bg-white/5
+                px-2.5
+                text-xs
+                font-medium
+                text-slate-400
+                transition
+                hover:bg-white/10
+                hover:text-white
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+                sm:px-3
               "
             >
-              {error}
-            </div>
-          )}
+              <FaPaste />
 
-
-
-
-          {/* Platforms */}
-
-          <div
-            className="
-              flex
-              flex-wrap
-              gap-2
-              text-xs
-              text-slate-400
-            "
-          >
-
-            <span>
-              Supported:
-            </span>
-
-            {[
-              "YouTube",
-              "Vimeo",
-              "Facebook",
-              "TikTok",
-              "Instagram",
-            ].map((item) => (
-              <span
-                key={item}
-                className="
-                  rounded-full
-                  bg-slate-800
-                  px-3
-                  py-1
-                "
-              >
-                {item}
+              <span className="hidden sm:inline">
+                Paste
               </span>
-            ))}
-
+            </button>
           </div>
+        </div>
 
+        {/* Get Video Button */}
 
-        </form>
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            flex
+            h-14
+            w-full
+            shrink-0
+            items-center
+            justify-center
+            gap-2.5
+            rounded-2xl
+            bg-gradient-to-r
+            from-red-500
+            to-pink-500
+            px-6
+            text-sm
+            font-bold
+            text-white
+            shadow-lg
+            shadow-red-500/10
+            transition
+            duration-300
 
+            hover:-translate-y-0.5
+            hover:shadow-xl
+            hover:shadow-red-500/20
 
+            active:translate-y-0
+            active:scale-[0.98]
+
+            disabled:pointer-events-none
+            disabled:opacity-60
+
+            sm:h-16
+            sm:w-auto
+            sm:min-w-[150px]
+          "
+        >
+          {loading ? (
+            <>
+              <FaSpinner className="animate-spin" />
+
+              <span>Fetching...</span>
+            </>
+          ) : (
+            <>
+              <FaDownload />
+
+              <span>Get Video</span>
+            </>
+          )}
+        </button>
       </div>
 
-    </section>
+      {/* ================================
+          Validation Status
+      ================================= */}
+
+      {url && !error && !loading && validateUrl(url.trim()) && (
+        <div
+          className="
+            mt-3
+            flex
+            items-center
+            gap-2
+            text-xs
+            text-emerald-400
+          "
+        >
+          <FaCheck />
+
+          Supported video URL
+        </div>
+      )}
+
+      {/* ================================
+          Error
+      ================================= */}
+
+      {error && (
+        <div
+          className="
+            mt-3
+            rounded-xl
+            border
+            border-red-500/20
+            bg-red-500/10
+            px-4
+            py-3
+            text-xs
+            leading-5
+            text-red-400
+            sm:text-sm
+          "
+          role="alert"
+        >
+          {error}
+        </div>
+      )}
+
+      {/* ================================
+          Supported Platforms
+      ================================= */}
+
+      <div
+        className="
+          mt-4
+          flex
+          flex-wrap
+          items-center
+          justify-center
+          gap-1.5
+          text-[11px]
+          text-slate-600
+          sm:justify-start
+          sm:text-xs
+        "
+      >
+        <span className="mr-1">
+          Supports
+        </span>
+
+        {[
+          "YouTube",
+          "Vimeo",
+          "Facebook",
+          "TikTok",
+          "Instagram",
+        ].map((platform) => (
+          <span
+            key={platform}
+            className="
+              rounded-full
+              border
+              border-white/5
+              bg-white/[0.03]
+              px-2.5
+              py-1
+              text-slate-500
+            "
+          >
+            {platform}
+          </span>
+        ))}
+      </div>
+    </form>
   );
 }

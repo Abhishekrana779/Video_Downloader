@@ -1,6 +1,10 @@
-// src/components/Loading.jsx
+// src/components/loading.jsx
 
-import { FaSpinner, FaVideo } from "react-icons/fa";
+import {
+  FaSpinner,
+  FaVideo,
+  FaBolt,
+} from "react-icons/fa";
 
 export default function Loading() {
   return (
@@ -10,101 +14,149 @@ export default function Loading() {
       aria-busy="true"
       className="
         mx-auto
-        flex
-        min-h-[400px]
         w-full
         max-w-5xl
-        flex-col
-        items-center
-        justify-center
         px-4
-        py-12
+        py-10
         sm:px-6
+        sm:py-12
         lg:px-8
       "
     >
+      {/* =================================
+          Main Loader
+      ================================== */}
 
-      {/* Loader */}
-
-      <div className="relative flex h-24 w-24 items-center justify-center">
+      <div
+        className="
+          flex
+          flex-col
+          items-center
+          justify-center
+          text-center
+        "
+      >
+        {/* Animated Icon */}
 
         <div
           className="
-            absolute
-            h-24
-            w-24
-            rounded-full
-            border-4
-            border-slate-800
+            relative
+            flex
+            h-20
+            w-20
+            items-center
+            justify-center
+            sm:h-24
+            sm:w-24
           "
-        />
+        >
+          {/* Outer Ring */}
 
-        <div
+          <div
+            className="
+              absolute
+              inset-0
+              rounded-full
+              border-4
+              border-white/5
+            "
+          />
+
+          {/* Animated Ring */}
+
+          <div
+            className="
+              absolute
+              inset-0
+              animate-spin
+              rounded-full
+              border-4
+              border-transparent
+              border-t-red-500
+              border-r-pink-500
+            "
+          />
+
+          {/* Inner Circle */}
+
+          <div
+            className="
+              flex
+              h-14
+              w-14
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-white/10
+              bg-slate-900
+              shadow-lg
+              sm:h-16
+              sm:w-16
+            "
+          >
+            <FaVideo
+              className="
+                text-xl
+                text-red-400
+                sm:text-2xl
+              "
+            />
+          </div>
+        </div>
+
+        {/* Heading */}
+
+        <h2
           className="
-            absolute
-            h-24
-            w-24
-            animate-spin
-            rounded-full
-            border-4
-            border-transparent
-            border-t-red-500
-            border-l-pink-500
+            mt-6
+            flex
+            items-center
+            gap-2
+            text-xl
+            font-bold
+            text-white
+            sm:mt-7
+            sm:text-2xl
           "
-        />
+        >
+          Fetching Video
 
-        <FaVideo
+          <FaSpinner
+            className="
+              animate-spin
+              text-base
+              text-red-500
+              sm:text-lg
+            "
+          />
+        </h2>
+
+        {/* Description */}
+
+        <p
           className="
-            text-3xl
-            text-red-400
+            mt-3
+            max-w-md
+            text-center
+            text-sm
+            leading-6
+            text-slate-400
           "
-        />
-
+        >
+          We're getting the video information and
+          checking the available download qualities.
+        </p>
       </div>
 
+      {/* =================================
+          Progress Bar
+      ================================== */}
 
-      {/* Heading */}
-
-      <h2
-        className="
-          mt-8
-          flex
-          items-center
-          gap-2
-          text-center
-          text-2xl
-          font-bold
-          text-white
-          sm:text-3xl
-        "
-      >
-        Fetching Video
-        <FaSpinner className="animate-spin text-red-500" />
-      </h2>
-
-
-      <p
-        className="
-          mt-3
-          max-w-lg
-          text-center
-          text-sm
-          leading-7
-          text-slate-400
-        "
-      >
-        We are collecting video information and finding available qualities.
-        Please wait a moment.
-      </p>
-
-
-      {/* Loading Bar */}
-
-      <div className="mt-8 w-full max-w-md">
-
+      <div className="mx-auto mt-7 w-full max-w-md">
         <div
           className="
-            h-2
+            h-1.5
             overflow-hidden
             rounded-full
             bg-slate-800
@@ -123,138 +175,139 @@ export default function Loading() {
             "
           />
         </div>
-
       </div>
 
-
-
-      {/* Skeleton Preview */}
+      {/* =================================
+          Loading Preview
+      ================================== */}
 
       <div
         className="
-          mt-10
+          mx-auto
+          mt-8
           w-full
-          rounded-3xl
+          rounded-2xl
           border
-          border-slate-800
-          bg-slate-900/80
-          p-5
-          shadow-xl
-          backdrop-blur
-          sm:p-6
+          border-white/10
+          bg-white/[0.03]
+          p-4
+          backdrop-blur-xl
+          sm:mt-10
+          sm:rounded-3xl
+          sm:p-5
         "
       >
-
         <div
           className="
-            flex
-            flex-col
-            gap-6
             animate-pulse
-            md:flex-row
+            md:grid
+            md:grid-cols-[240px_1fr]
+            md:gap-5
           "
         >
-
-          {/* Thumbnail */}
+          {/* Thumbnail Skeleton */}
 
           <div
             className="
               flex
-              h-48
+              h-44
               w-full
               items-center
               justify-center
-              rounded-2xl
-              bg-slate-800
-              md:h-52
-              md:w-80
+              overflow-hidden
+              rounded-xl
+              bg-slate-800/80
+              sm:h-52
+              md:h-40
             "
           >
-            <FaVideo className="text-4xl text-slate-700" />
+            <FaVideo
+              className="
+                text-3xl
+                text-slate-700
+              "
+            />
           </div>
 
+          {/* Content Skeleton */}
 
-          {/* Content */}
-
-          <div className="flex flex-1 flex-col">
+          <div className="mt-5 md:mt-0">
+            {/* Title */}
 
             <div
               className="
-                h-7
-                w-3/4
+                h-6
+                w-4/5
                 rounded-lg
                 bg-slate-800
+                sm:h-7
               "
             />
 
-            <div
-              className="
-                mt-4
-                h-4
-                w-1/2
-                rounded
-                bg-slate-800
-              "
-            />
-
+            {/* Uploader */}
 
             <div
               className="
                 mt-3
                 h-4
-                w-2/3
+                w-2/5
                 rounded
                 bg-slate-800
               "
             />
 
+            {/* Info Cards */}
 
-            <div className="mt-8 space-y-3">
-
+            <div
+              className="
+                mt-6
+                grid
+                grid-cols-2
+                gap-3
+              "
+            >
               <div
                 className="
-                  h-12
+                  h-14
                   rounded-xl
-                  bg-slate-800
+                  bg-slate-800/80
                 "
               />
 
               <div
                 className="
-                  h-12
+                  h-14
                   rounded-xl
-                  bg-slate-800
+                  bg-slate-800/80
                 "
               />
-
-              <div
-                className="
-                  h-12
-                  rounded-xl
-                  bg-slate-800
-                "
-              />
-
             </div>
-
           </div>
-
         </div>
-
       </div>
 
+      {/* =================================
+          Status Message
+      ================================== */}
 
-      <p
+      <div
         className="
           mt-6
-          text-center
-          text-sm
+          flex
+          items-center
+          justify-center
+          gap-2
+          text-xs
           text-slate-500
+          sm:text-sm
         "
       >
-        This normally takes only a few seconds...
-      </p>
+        <FaBolt className="text-red-400" />
 
+        <span>
+          This usually takes only a few seconds...
+        </span>
+      </div>
     </section>
   );
 }

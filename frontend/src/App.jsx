@@ -2,109 +2,84 @@ import Home from "./pages/home";
 
 export default function App() {
   return (
-    <div
-      className="
-        relative
-        min-h-screen
-        overflow-x-hidden
-        bg-slate-950
-        text-white
-      "
-    >
+    <div className="relative min-h-screen overflow-x-hidden bg-slate-950 text-white">
+      
       {/* Background Effects */}
-
-      <div
-        className="
-          fixed
-          inset-0
-          -z-20
-          overflow-hidden
-        "
-      >
-        {/* Main Gradient */}
-
-        <div
-          className="
-            absolute
-            inset-0
-            bg-gradient-to-br
-            from-slate-950
-            via-slate-900
-            to-black
-          "
-        />
+      <div className="fixed inset-0 -z-20 overflow-hidden">
+        
+        {/* Main Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-black" />
 
         {/* Red Glow */}
-
         <div
           className="
             absolute
-            -top-32
+            -top-40
             left-1/2
-            h-[30rem]
-            w-[30rem]
+            h-[22rem]
+            w-[22rem]
             -translate-x-1/2
             rounded-full
-            bg-red-500/20
-            blur-[150px]
-            animate-pulse
+            bg-red-500/15
+            blur-[120px]
+            sm:h-[30rem]
+            sm:w-[30rem]
+            sm:blur-[150px]
+            motion-safe:animate-pulse
           "
         />
 
         {/* Blue Glow */}
-
         <div
           className="
             absolute
-            -bottom-20
-            -right-20
-            h-[26rem]
-            w-[26rem]
+            -bottom-32
+            -right-32
+            h-[20rem]
+            w-[20rem]
             rounded-full
-            bg-blue-500/20
-            blur-[140px]
-            animate-pulse
+            bg-blue-500/15
+            blur-[110px]
+            sm:h-[26rem]
+            sm:w-[26rem]
+            sm:blur-[140px]
+            motion-safe:animate-pulse
           "
         />
 
         {/* Purple Glow */}
-
         <div
           className="
             absolute
-            left-[-120px]
+            -left-32
             top-1/2
-            h-[22rem]
-            w-[22rem]
+            h-[18rem]
+            w-[18rem]
             rounded-full
-            bg-purple-500/20
-            blur-[130px]
-            animate-pulse
+            bg-purple-500/15
+            blur-[100px]
+            sm:h-[22rem]
+            sm:w-[22rem]
+            sm:blur-[130px]
+            motion-safe:animate-pulse
           "
         />
 
         {/* Grid Background */}
-
         <div
           className="
             absolute
             inset-0
-            opacity-[0.04]
+            opacity-[0.035]
             [background-image:linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)]
-            [background-size:50px_50px]
+            [background-size:40px_40px]
+            sm:[background-size:50px_50px]
           "
         />
       </div>
 
       {/* Application Content */}
-
-      <main
-        className="
-          relative
-          z-10
-          min-h-screen
-        "
-      >
+      <main className="relative z-10 min-h-screen">
         <Home />
       </main>
     </div>

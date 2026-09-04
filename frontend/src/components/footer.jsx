@@ -1,37 +1,102 @@
+// src/components/footer.jsx
+
 import {
   FaGithub,
   FaLinkedin,
   FaTwitter,
   FaHeart,
   FaReact,
+  FaArrowUp,
 } from "react-icons/fa";
 
 export default function Footer() {
   const year = new Date().getFullYear();
 
+  const quickLinks = [
+    { name: "Home", href: "#" },
+    { name: "Features", href: "#features" },
+    { name: "FAQ", href: "#faq" },
+    { name: "About", href: "#about" },
+  ];
+
+  const socialLinks = [
+    {
+      name: "GitHub",
+      href: "https://github.com/sushantrana1",
+      icon: <FaGithub />,
+    },
+    {
+      name: "LinkedIn",
+      href: "https://linkedin.com",
+      icon: <FaLinkedin />,
+    },
+    {
+      name: "Twitter",
+      href: "https://twitter.com",
+      icon: <FaTwitter />,
+    },
+  ];
+
   return (
     <footer
       className="
+        relative
         mt-16
         w-full
         overflow-hidden
         border-t
-        border-slate-800
-        bg-gradient-to-b
-        from-slate-950
-        via-slate-900
-        to-black
+        border-white/10
+        bg-slate-950
         text-white
       "
     >
+      {/* =================================
+          Background Glow
+      ================================== */}
+
       <div
         className="
+          pointer-events-none
+          absolute
+          -top-32
+          left-1/2
+          h-64
+          w-64
+          -translate-x-1/2
+          rounded-full
+          bg-red-500/10
+          blur-3xl
+        "
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -bottom-32
+          right-0
+          h-64
+          w-64
+          rounded-full
+          bg-purple-500/10
+          blur-3xl
+        "
+      />
+
+      {/* =================================
+          Main Footer
+      ================================== */}
+
+      <div
+        className="
+          relative
           mx-auto
           w-full
           max-w-7xl
           px-4
           py-12
           sm:px-6
+          sm:py-14
           lg:px-8
         "
       >
@@ -40,24 +105,78 @@ export default function Footer() {
             grid
             grid-cols-1
             gap-10
-            md:grid-cols-3
+            sm:grid-cols-2
+            lg:grid-cols-3
+            lg:gap-16
           "
         >
-          {/* Brand */}
+          {/* =================================
+              Brand
+          ================================== */}
 
-          <div
-            className="
-              min-w-0
-              md:col-span-1
-            "
-          >
-            <h2
+          <div className="sm:col-span-2 lg:col-span-1">
+            <a
+              href="#"
               className="
+                inline-flex
+                items-center
+                gap-2.5
+                text-xl
+                font-bold
+                tracking-tight
+                sm:text-2xl
+              "
+            >
+              <span
+                className="
+                  flex
+                  h-9
+                  w-9
+                  items-center
+                  justify-center
+                  rounded-xl
+                  bg-gradient-to-br
+                  from-red-500
+                  to-purple-500
+                  shadow-lg
+                  shadow-red-500/20
+                "
+              >
+                <FaVideoIcon />
+              </span>
+
+              <span>
+                Video
+                <span className="text-red-400">
+                  Downloader
+                </span>
+              </span>
+            </a>
+
+            <p
+              className="
+                mt-4
+                max-w-md
+                text-sm
+                leading-6
+                text-slate-400
+              "
+            >
+              Download videos quickly and easily with
+              a simple, fast, and responsive video
+              downloader interface.
+            </p>
+
+            {/* Tech */}
+
+            <div
+              className="
+                mt-5
                 flex
                 items-center
                 gap-2
-                text-2xl
-                font-bold
+                text-xs
+                text-slate-500
               "
             >
               <FaReact
@@ -65,229 +184,201 @@ export default function Footer() {
                   text-cyan-400
                 "
               />
-              VideoDownloader
-            </h2>
+
+              Built with React & Tailwind CSS
+            </div>
+          </div>
+
+          {/* =================================
+              Quick Links
+          ================================== */}
+
+          <div>
+            <h3
+              className="
+                text-sm
+                font-semibold
+                uppercase
+                tracking-wider
+                text-white
+              "
+            >
+              Quick Links
+            </h3>
+
+            <ul
+              className="
+                mt-5
+                space-y-3
+                text-sm
+              "
+            >
+              {quickLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="
+                      inline-flex
+                      transition-colors
+                      duration-200
+                      text-slate-400
+                      hover:text-red-400
+                    "
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* =================================
+              Follow
+          ================================== */}
+
+          <div>
+            <h3
+              className="
+                text-sm
+                font-semibold
+                uppercase
+                tracking-wider
+                text-white
+              "
+            >
+              Follow Me
+            </h3>
 
             <p
               className="
-                mt-4
-                max-w-sm
+                mt-5
+                max-w-xs
                 text-sm
                 leading-6
-                text-slate-400
+                text-slate-500
               "
             >
-              Download your favorite videos quickly with a simple, fast, and
-              responsive video downloader interface built with React.
+              Connect with me and check out more of
+              my projects.
             </p>
-          </div>
 
-          {/* Mobile Two Columns */}
-
-          <div
-            className="
-              grid
-              grid-cols-2
-              gap-6
-              md:col-span-2
-              md:grid-cols-2
-            "
-          >
-            {/* Quick Links */}
-
-            <div>
-              <h3
-                className="
-                  mb-4
-                  text-lg
-                  font-semibold
-                "
-              >
-                Quick Links
-              </h3>
-
-              <ul
-                className="
-                  space-y-3
-                  text-sm
-                  text-slate-400
-                "
-              >
-                <li>
-                  <a
-                    href="#"
-                    className="
-                      transition
-                      hover:text-cyan-400
-                    "
-                  >
-                    Home
-                  </a>
-                </li>
-
-                <li>
-                  <a
-                    href="#features"
-                    className="
-                      transition
-                      hover:text-cyan-400
-                    "
-                  >
-                    Features
-                  </a>
-                </li>
-
-                <li>
-                  <a
-                    href="#about"
-                    className="
-                      transition
-                      hover:text-cyan-400
-                    "
-                  >
-                    About
-                  </a>
-                </li>
-
-                <li>
-                  <a
-                    href="#contact"
-                    className="
-                      transition
-                      hover:text-cyan-400
-                    "
-                  >
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Follow Me */}
-
-            <div>
-              <h3
-                className="
-                  mb-4
-                  text-lg
-                  font-semibold
-                "
-              >
-                Follow Me
-              </h3>
-
-              <div
-                className="
-                  flex
-                  flex-wrap
-                  gap-3
-                "
-              >
+            <div
+              className="
+                mt-5
+                flex
+                flex-wrap
+                gap-3
+              "
+            >
+              {socialLinks.map((social) => (
                 <a
-                  href="https://github.com"
+                  key={social.name}
+                  href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={social.name}
                   className="
                     flex
                     h-10
                     w-10
-                    shrink-0
                     items-center
                     justify-center
-                    rounded-full
+                    rounded-xl
                     border
-                    border-slate-700
-                    text-slate-300
-                    transition
-                    hover:border-cyan-400
-                    hover:text-cyan-400
+                    border-white/10
+                    bg-white/[0.03]
+                    text-slate-400
+                    transition-all
+                    duration-200
+                    hover:-translate-y-1
+                    hover:border-red-500/40
+                    hover:bg-red-500/10
+                    hover:text-red-400
                   "
                 >
-                  <FaGithub />
+                  {social.icon}
                 </a>
-
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="
-                    flex
-                    h-10
-                    w-10
-                    shrink-0
-                    items-center
-                    justify-center
-                    rounded-full
-                    border
-                    border-slate-700
-                    text-slate-300
-                    transition
-                    hover:border-cyan-400
-                    hover:text-cyan-400
-                  "
-                >
-                  <FaLinkedin />
-                </a>
-
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="
-                    flex
-                    h-10
-                    w-10
-                    shrink-0
-                    items-center
-                    justify-center
-                    rounded-full
-                    border
-                    border-slate-700
-                    text-slate-300
-                    transition
-                    hover:border-cyan-400
-                    hover:text-cyan-400
-                  "
-                >
-                  <FaTwitter />
-                </a>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom */}
+      {/* =================================
+          Bottom Bar
+      ================================== */}
 
       <div
         className="
+          relative
           border-t
-          border-slate-800
-          px-4
-          py-5
-          text-center
-          text-sm
-          text-slate-400
+          border-white/10
         "
       >
-        <p
+        <div
           className="
+            mx-auto
             flex
-            flex-wrap
+            w-full
+            max-w-7xl
+            flex-col
             items-center
-            justify-center
-            gap-2
+            justify-between
+            gap-4
+            px-4
+            py-5
+            text-center
+            sm:flex-row
+            sm:px-6
+            sm:text-left
+            lg:px-8
           "
         >
-          © {year} VideoDownloader. Made with
-          <FaHeart
+          <p
             className="
-              text-red-500
+              text-xs
+              text-slate-500
+              sm:text-sm
             "
-          />
-          using React & Tailwind CSS.
-        </p>
+          >
+            © {year} VideoDownloader. All rights
+            reserved.
+          </p>
+
+          <a
+            href="#"
+            aria-label="Back to top"
+            className="
+              flex
+              items-center
+              gap-2
+              text-xs
+              text-slate-500
+              transition-colors
+              hover:text-red-400
+              sm:text-sm
+            "
+          >
+            Back to top
+            <FaArrowUp />
+          </a>
+        </div>
       </div>
     </footer>
+  );
+}
+
+/* =====================================
+   Small Logo Icon
+===================================== */
+
+function FaVideoIcon() {
+  return (
+    <FaReact
+      className="
+        text-lg
+        text-white
+      "
+    />
   );
 }

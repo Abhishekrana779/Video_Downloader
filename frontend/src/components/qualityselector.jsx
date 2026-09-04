@@ -1,6 +1,10 @@
 // src/components/QualitySelector.jsx
 
-import { FaCheckCircle, FaVideo, FaDownload } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaVideo,
+  FaDownload,
+} from "react-icons/fa";
 
 export default function QualitySelector({
   qualities = [],
@@ -9,7 +13,9 @@ export default function QualitySelector({
 }) {
   if (!qualities.length) return null;
 
+  // =====================================
   // Remove duplicate qualities
+  // =====================================
 
   const uniqueQualities = qualities.filter(
     (item, index, self) =>
@@ -17,9 +23,13 @@ export default function QualitySelector({
       self.findIndex(
         (q) =>
           (q.height || q.quality || q.format_note) ===
-          (item.height || item.quality || item.format_note),
-      ),
+          (item.height || item.quality || item.format_note)
+      )
   );
+
+  // =====================================
+  // Quality Label
+  // =====================================
 
   const getQualityLabel = (item) => {
     if (item.quality) {
@@ -37,9 +47,49 @@ export default function QualitySelector({
     return "Unknown";
   };
 
+  // =====================================
+  // Format Label
+  // =====================================
+
   const getFormatLabel = (item) => {
-    return (item.ext || item.format || "MP4").toUpperCase();
+    return (
+      item.ext ||
+      item.format ||
+      "MP4"
+    ).toUpperCase();
   };
+
+  // =====================================
+  // File Size
+  // =====================================
+
+  const getFileSize = (item) => {
+    if (item.size) {
+      return item.size;
+    }
+
+    if (item.filesize) {
+      return `${(
+        item.filesize /
+        1024 /
+        1024
+      ).toFixed(2)} MB`;
+    }
+
+    if (item.filesize_approx) {
+      return `${(
+        item.filesize_approx /
+        1024 /
+        1024
+      ).toFixed(2)} MB`;
+    }
+
+    return null;
+  };
+
+  // =====================================
+  // Selected State
+  // =====================================
 
   const isSelected = (item) => {
     if (!selectedQuality) return false;
@@ -52,98 +102,131 @@ export default function QualitySelector({
   };
 
   return (
-    <section
-      className="
-        mx-auto
-        mt-10
-        w-full
-        max-w-5xl
-        px-4
-        sm:px-6
-        lg:px-8
-      "
-    >
-      {/* Header */}
+    <div className="w-full">
+      {/* =================================
+          Header
+      ================================== */}
 
-      <div className="mb-6">
-        <h2
-          className="
-            text-2xl
-            font-bold
-            text-white
-            sm:text-3xl
-          "
-        >
-          Select Video Quality
-        </h2>
+      <div className="mb-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3
+              className="
+                text-base
+                font-bold
+                text-white
+                sm:text-lg
+              "
+            >
+              Choose Quality
+            </h3>
 
-        <p
-          className="
-            mt-2
-            text-sm
-            text-slate-400
-          "
-        >
-          Choose the video quality you want to download.
-        </p>
+            <p
+              className="
+                mt-1
+                text-xs
+                leading-5
+                text-slate-500
+                sm:text-sm
+              "
+            >
+              Select the quality you want to download.
+            </p>
+          </div>
+
+          {/* Number of qualities */}
+
+          <span
+            className="
+              shrink-0
+              rounded-full
+              border
+              border-white/10
+              bg-white/5
+              px-2.5
+              py-1
+              text-[10px]
+              font-medium
+              text-slate-400
+              sm:px-3
+              sm:text-xs
+            "
+          >
+            {uniqueQualities.length}{" "}
+            {uniqueQualities.length === 1
+              ? "option"
+              : "options"}
+          </span>
+        </div>
       </div>
 
-      {/* Quality Cards */}
+      {/* =================================
+          Quality Cards
+      ================================== */}
 
       <div
         className="
           grid
           grid-cols-2
-          gap-4
+          gap-2.5
           sm:grid-cols-3
+          sm:gap-3
           lg:grid-cols-4
         "
       >
         {uniqueQualities.map((item, index) => {
           const active = isSelected(item);
+          const fileSize = getFileSize(item);
 
           return (
             <button
               key={
-                item.format_id || item.id || `${getQualityLabel(item)}-${index}`
+                item.format_id ||
+                item.id ||
+                `${getQualityLabel(item)}-${index}`
               }
-              onClick={() => setSelectedQuality(item)}
+              type="button"
+              onClick={() =>
+                setSelectedQuality(item)
+              }
+              aria-pressed={active}
               className={`
+                group
                 relative
-                flex
-                flex-col
-                items-center
-                justify-center
+                min-h-[140px]
+                overflow-hidden
                 rounded-2xl
                 border
-                p-5
+                p-4
+                text-left
                 transition-all
                 duration-300
-                active:scale-95
+                active:scale-[0.97]
 
                 ${
                   active
                     ? `
-                      border-red-500
+                      border-red-500/70
                       bg-gradient-to-br
-                      from-red-500
-                      to-pink-600
-                      text-white
+                      from-red-500/15
+                      via-pink-500/10
+                      to-transparent
                       shadow-lg
-                      shadow-red-500/30
+                      shadow-red-500/10
                     `
                     : `
-                      border-slate-700
-                      bg-slate-900
-                      text-slate-300
+                      border-white/10
+                      bg-white/[0.025]
                       hover:-translate-y-1
-                      hover:border-red-500
-                      hover:bg-slate-800
+                      hover:border-red-500/30
+                      hover:bg-white/[0.05]
+                      hover:shadow-lg
+                      hover:shadow-black/20
                     `
                 }
               `}
             >
-              {/* Selected Icon */}
+              {/* Selected Indicator */}
 
               {active && (
                 <FaCheckCircle
@@ -151,111 +234,184 @@ export default function QualitySelector({
                     absolute
                     right-3
                     top-3
-                    text-xl
+                    text-sm
+                    text-red-400
+                    sm:text-base
                   "
                 />
               )}
 
-              {/* Video Icon */}
+              {/* Quality Icon */}
 
               <div
-                className="
-                  mb-3
+                className={`
+                  mb-4
                   flex
-                  h-12
-                  w-12
+                  h-10
+                  w-10
                   items-center
                   justify-center
                   rounded-xl
-                  bg-red-500/20
-                "
+                  transition
+                  duration-300
+                  ${
+                    active
+                      ? "bg-red-500/20"
+                      : "bg-white/5 group-hover:bg-red-500/10"
+                  }
+                `}
               >
                 <FaVideo
-                  className="
-                    text-2xl
-                    text-red-400
-                  "
+                  className={`
+                    text-base
+                    transition
+                    duration-300
+                    ${
+                      active
+                        ? "text-red-400"
+                        : "text-slate-500 group-hover:text-red-400"
+                    }
+                  `}
                 />
               </div>
 
               {/* Quality */}
 
-              <h3
-                className="
-                  text-lg
+              <h4
+                className={`
+                  text-base
                   font-bold
-                "
+                  sm:text-lg
+                  ${
+                    active
+                      ? "text-white"
+                      : "text-slate-200"
+                  }
+                `}
               >
                 {getQualityLabel(item)}
-              </h3>
+              </h4>
 
-              {/* Format */}
+              {/* Format + Size */}
 
-              <span
-                className="
-                  mt-2
-                  rounded-full
-                  bg-white/10
-                  px-3
-                  py-1
-                  text-xs
-                "
-              >
-                {getFormatLabel(item)}
-              </span>
-
-              {/* Size */}
-
-              {(item.size || item.filesize) && (
-                <p
-                  className="
-                    mt-2
-                    text-xs
-                    text-slate-300
-                  "
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span
+                  className={`
+                    rounded-md
+                    px-2
+                    py-1
+                    text-[10px]
+                    font-semibold
+                    ${
+                      active
+                        ? "bg-red-500/15 text-red-300"
+                        : "bg-white/5 text-slate-500"
+                    }
+                  `}
                 >
-                  {item.size ||
-                    `${(item.filesize / 1024 / 1024).toFixed(2)} MB`}
-                </p>
+                  {getFormatLabel(item)}
+                </span>
+
+                {fileSize && (
+                  <span
+                    className="
+                      truncate
+                      text-[10px]
+                      text-slate-500
+                    "
+                  >
+                    {fileSize}
+                  </span>
+                )}
+              </div>
+
+              {/* Selected Bottom Line */}
+
+              {active && (
+                <div
+                  className="
+                    absolute
+                    bottom-0
+                    left-0
+                    h-0.5
+                    w-full
+                    bg-gradient-to-r
+                    from-red-500
+                    to-pink-500
+                  "
+                />
               )}
             </button>
           );
         })}
       </div>
 
-      {/* Selected Quality */}
+      {/* =================================
+          Selected Quality
+      ================================== */}
 
       {selectedQuality && (
         <div
           className="
-            mt-8
+            mt-5
             flex
-            items-center
-            justify-center
+            flex-col
             gap-3
             rounded-2xl
             border
-            border-red-500/30
-            bg-red-500/10
-            p-5
-            text-red-300
+            border-red-500/15
+            bg-red-500/[0.06]
+            p-4
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
           "
         >
-          <FaDownload />
-
-          <span>
-            Selected:
-            <strong
+          <div className="flex items-center gap-3">
+            <div
               className="
-                ml-2
-                text-white
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-xl
+                bg-red-500/10
+                text-red-400
               "
             >
-              {getQualityLabel(selectedQuality)}
-            </strong>
+              <FaDownload className="text-sm" />
+            </div>
+
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500">
+                Selected quality
+              </p>
+
+              <p className="mt-0.5 text-sm font-semibold text-white">
+                {getQualityLabel(selectedQuality)}
+              </p>
+            </div>
+          </div>
+
+          <span
+            className="
+              self-start
+              rounded-full
+              bg-white/5
+              px-3
+              py-1
+              text-xs
+              font-medium
+              text-slate-400
+              sm:self-auto
+            "
+          >
+            {getFormatLabel(selectedQuality)}
           </span>
         </div>
       )}
-    </section>
+    </div>
   );
 }

@@ -1,17 +1,15 @@
-// src/components/Header.jsx
+// src/components/header.jsx
 
 import {
   FaVideo,
-  FaMoon,
-  FaSun,
   FaBars,
   FaTimes,
+  FaArrowRight,
 } from "react-icons/fa";
 
 import { useEffect, useState } from "react";
 
 export default function Header() {
-  const [darkMode, setDarkMode] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
@@ -21,13 +19,29 @@ export default function Header() {
     { name: "About", href: "#about" },
   ];
 
+  // Close mobile menu when pressing Escape
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  // Prevent background scrolling when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
 
   return (
     <header
@@ -36,9 +50,9 @@ export default function Header() {
         top-0
         z-50
         border-b
-        border-slate-800
-        bg-slate-950/90
-        backdrop-blur-lg
+        border-white/10
+        bg-slate-950/80
+        backdrop-blur-xl
       "
     >
       <div
@@ -50,43 +64,66 @@ export default function Header() {
           items-center
           justify-between
           px-4
+          sm:h-[72px]
           sm:px-6
           lg:px-8
         "
       >
-
-        {/* Logo */}
+        {/* =========================
+            Logo
+        ========================== */}
 
         <a
           href="#"
-          className="flex items-center gap-3"
+          className="
+            group
+            flex
+            min-w-0
+            items-center
+            gap-2.5
+            sm:gap-3
+          "
+          onClick={() => setMenuOpen(false)}
         >
+          {/* Logo Icon */}
+
           <div
             className="
               flex
-              h-10
-              w-10
+              h-9
+              w-9
+              shrink-0
               items-center
               justify-center
               rounded-xl
-              bg-gradient-to-r
+              bg-gradient-to-br
               from-red-500
               to-pink-500
               text-white
               shadow-lg
-              shadow-red-500/30
+              shadow-red-500/20
+              transition
+              duration-300
+              group-hover:scale-105
+              group-hover:shadow-red-500/40
+              sm:h-10
+              sm:w-10
             "
           >
-            <FaVideo />
+            <FaVideo className="text-sm sm:text-base" />
           </div>
 
-          <div>
+          {/* Logo Text */}
+
+          <div className="min-w-0">
             <h1
               className="
-                text-lg
+                truncate
+                text-sm
                 font-bold
+                tracking-tight
                 text-white
-                sm:text-xl
+                sm:text-lg
               "
             >
               Video Downloader
@@ -95,8 +132,8 @@ export default function Header() {
             <p
               className="
                 hidden
-                text-xs
-                text-slate-400
+                text-[11px]
+                text-slate-500
                 sm:block
               "
             >
@@ -105,184 +142,238 @@ export default function Header() {
           </div>
         </a>
 
-
-        {/* Desktop Navigation */}
+        {/* =========================
+            Desktop Navigation
+        ========================== */}
 
         <nav
           className="
             hidden
             items-center
-            gap-8
+            gap-1
             md:flex
           "
         >
-          {links.map((link) => (
+          {links.map((link, index) => (
             <a
               key={link.name}
               href={link.href}
-              className="
+              className={`
+                group
+                relative
+                rounded-lg
+                px-4
+                py-2
                 text-sm
                 font-medium
-                text-slate-300
                 transition
-                hover:text-red-400
-              "
+                duration-200
+                ${
+                  index === 0
+                    ? "text-white"
+                    : "text-slate-400 hover:text-white"
+                }
+              `}
             >
               {link.name}
+
+              {/* Hover underline */}
+
+              <span
+                className="
+                  absolute
+                  bottom-1
+                  left-4
+                  right-4
+                  h-px
+                  origin-left
+                  scale-x-0
+                  bg-gradient-to-r
+                  from-red-500
+                  to-pink-500
+                  transition
+                  duration-300
+                  group-hover:scale-x-100
+                "
+              />
             </a>
           ))}
         </nav>
 
+        {/* =========================
+            Desktop CTA + Mobile Menu
+        ========================== */}
 
-        {/* Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Desktop Get Started */}
 
-        <div
-          className="
-            flex
-            items-center
-            gap-3
-          "
-        >
-
-          {/* Theme Button */}
-
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="
-              flex
-              h-10
-              w-10
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-slate-700
-              text-slate-300
-              transition
-              hover:bg-slate-800
-              hover:text-white
-            "
-          >
-            {darkMode ? <FaSun /> : <FaMoon />}
-          </button>
-
-
-          {/* Desktop Button */}
-
-          <button
+          <a
+            href="#download"
             className="
               hidden
+              items-center
+              gap-2
               rounded-xl
-              bg-red-500
-              px-5
+              bg-gradient-to-r
+              from-red-500
+              to-pink-500
+              px-4
               py-2.5
+              text-sm
               font-semibold
               text-white
+              shadow-lg
+              shadow-red-500/10
               transition
-              hover:bg-red-600
-              md:block
+              duration-300
+              hover:-translate-y-0.5
+              hover:shadow-red-500/30
+              sm:px-5
+              md:flex
             "
           >
             Get Started
-          </button>
 
+            <FaArrowRight
+              className="
+                text-xs
+                transition
+                duration-300
+                group-hover:translate-x-1
+              "
+            />
+          </a>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button */}
 
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
+            type="button"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
             className="
               flex
               h-10
               w-10
               items-center
               justify-center
-              rounded-lg
+              rounded-xl
               border
-              border-slate-700
-              text-white
+              border-white/10
+              bg-white/5
+              text-slate-300
               transition
-              hover:bg-slate-800
+              duration-200
+              hover:border-white/20
+              hover:bg-white/10
+              hover:text-white
               md:hidden
             "
           >
-            {menuOpen ? <FaTimes /> : <FaBars />}
+            {menuOpen ? (
+              <FaTimes className="text-sm" />
+            ) : (
+              <FaBars className="text-sm" />
+            )}
           </button>
-
         </div>
       </div>
 
-
-      {/* Mobile Navigation */}
+      {/* =========================
+          Mobile Navigation
+      ========================== */}
 
       <div
         className={`
           overflow-hidden
+          border-t
+          border-white/5
+          bg-slate-950/95
+          backdrop-blur-xl
           transition-all
           duration-300
           md:hidden
           ${
             menuOpen
-              ? "max-h-96 opacity-100"
-              : "max-h-0 opacity-0"
+              ? "max-h-[500px] opacity-100"
+              : "max-h-0 border-t-transparent opacity-0"
           }
         `}
       >
-
-        <nav
-          className="
-            border-t
-            border-slate-800
-            bg-slate-950
-            px-4
-            py-5
-          "
-        >
-
-          <div className="flex flex-col gap-3">
-
-            {links.map((link) => (
+        <nav className="px-4 py-4 sm:px-6">
+          <div className="flex flex-col gap-1">
+            {links.map((link, index) => (
               <a
                 key={link.name}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="
-                  rounded-lg
-                  px-3
-                  py-2
-                  text-slate-300
+                className={`
+                  flex
+                  items-center
+                  justify-between
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-sm
+                  font-medium
                   transition
-                  hover:bg-slate-900
-                  hover:text-red-400
-                "
+                  duration-200
+                  ${
+                    index === 0
+                      ? "bg-red-500/10 text-red-400"
+                      : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  }
+                `}
               >
                 {link.name}
+
+                {index === 0 && (
+                  <span
+                    className="
+                      h-1.5
+                      w-1.5
+                      rounded-full
+                      bg-red-500
+                    "
+                  />
+                )}
               </a>
             ))}
 
+            {/* Mobile CTA */}
 
-            <button
+            <a
+              href="#download"
+              onClick={() => setMenuOpen(false)}
               className="
-                mt-2
+                mt-3
+                flex
+                items-center
+                justify-center
+                gap-2
                 rounded-xl
-                bg-red-500
+                bg-gradient-to-r
+                from-red-500
+                to-pink-500
                 px-5
                 py-3
+                text-sm
                 font-semibold
                 text-white
+                shadow-lg
+                shadow-red-500/10
                 transition
-                hover:bg-red-600
+                duration-300
+                hover:shadow-red-500/30
               "
             >
               Get Started
-            </button>
 
+              <FaArrowRight className="text-xs" />
+            </a>
           </div>
-
         </nav>
-
       </div>
-
     </header>
   );
 }
