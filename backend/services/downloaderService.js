@@ -17,6 +17,8 @@ function baseArgs() {
   const args = [
     "--js-runtimes",
     "node",
+    "--remote-components",
+    "ejs:github",
     "--no-playlist",
     "--retries",
     String(YT_DLP_RETRIES),
@@ -25,7 +27,7 @@ function baseArgs() {
     "--socket-timeout",
     "30",
     "--extractor-args",
-    "youtube:player-client=mweb",
+    "youtube:player-client=web,ios,android,mweb",
     "--extractor-args",
     `youtubepot-bgutilscript:script_path=${POT_SCRIPT_PATH}`,
   ];
@@ -73,6 +75,18 @@ function cleanError(error) {
   if (/script path doesn't exist|no server_home or script_path/i.test(text)) {
     return new Error(
       "The YouTube PO-token provider is not installed correctly on Render. Redeploy the latest build."
+    );
+  }
+
+  if (/remote component challenge solver script.*skipped|signature solving failed|n challenge solving failed/i.test(text)) {
+    return new Error(
+      "YouTube challenge solving is unavailable. Ensure yt-dlp EJS remote components are enabled and the Node runtime is available."
+    );
+  }
+
+  if (/only images are available|requested format is not available/i.test(text)) {
+    return new Error(
+      "YouTube did not return usable video formats. The server may need a working proxy or PO-token provider."
     );
   }
 
