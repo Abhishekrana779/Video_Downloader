@@ -8,12 +8,9 @@ const execFileAsync = promisify(execFile);
 const YT_DLP_PATH = process.env.YT_DLP_PATH || "yt-dlp";
 const YT_DLP_TIMEOUT = Number(process.env.YT_DLP_TIMEOUT_MS || 120000);
 const YT_DLP_RETRIES = Number(process.env.YT_DLP_RETRIES || 2);
-
-const YOUTUBE_CLIENTS = [
-  process.env.YT_DLP_PLAYER_CLIENT || "android_vr",
-  "tv",
-  "web_embedded",
-];
+const POT_SCRIPT_PATH =
+  process.env.YT_DLP_POT_SCRIPT_PATH ||
+  path.resolve(process.cwd(), "../bgutil-ytdlp-pot-provider/server/build/generate_once.js");
 
 function baseArgs() {
   return [
@@ -27,7 +24,9 @@ function baseArgs() {
     "--socket-timeout",
     "30",
     "--extractor-args",
-    `youtube:player_skip=webpage,configs;player_client=${YOUTUBE_CLIENTS.join(",")}`,
+    "youtube:player-client=mweb",
+    "--extractor-args",
+    `youtubepot-bgutilscript:script_path=${POT_SCRIPT_PATH}`,
   ];
 }
 
@@ -41,20 +40,6 @@ function formatDuration(seconds) {
   const secs = total % 60;
 
   return `${minutes}:${secs.toString().padStart(2, "0")}`;
-}
-
-function isYoutubeUrl(url) {
-  try {
-    const hostname = new URL(url).hostname.toLowerCase();
-    return (
-      hostname === "youtube.com" ||
-      hostname.endsWith(".youtube.com") ||
-      hostname === "youtu.be" ||
-      hostname.endsWith(".youtu.be")
-    );
-  } catch {
-    return false;
-  }
 }
 
 function errorText(error) {
@@ -74,7 +59,13 @@ function cleanError(error) {
 
   if (/403|forbidden|failed to extract any player response/i.test(text)) {
     return new Error(
-      "YouTube rejected the server request (HTTP 403). The video may require a supported YouTube client/PO token, or the Render IP may be temporarily blocked."
+      "YouTube rejected the Render request (HTTP 403). The PO-token provider could not satisfy this request, or the Render IP is temporarily blocked."
+    );
+  }
+
+  if (/script path doesn't exist|no server_home or script_path/i.test(text)) {
+    return new Error(
+      "The YouTube PO-token provider is not installed correctly on Render. Redeploy the latest build."
     );
   }
 
@@ -94,6 +85,7 @@ export async function fetchVideoInfo(url) {
 
   console.log("YT-DLP PATH:", YT_DLP_PATH);
   console.log("VIDEO URL:", url);
+  console.log("PO TOKEN SCRIPT:", POT_SCRIPT_PATH);
 
   const version = await runYtDlp(["--version"]);
   console.log("YT-DLP VERSION:", version.stdout.trim());
@@ -102,22 +94,17 @@ export async function fetchVideoInfo(url) {
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      const args = [
+      const result = await runYtDlp([
         ...baseArgs(),
         "--dump-single-json",
         "--skip-download",
         url,
-      ];
+      ]);
 
-      if (isYoutubeUrl(url)) {
-        console.log("Using YouTube clients:", YOUTUBE_CLIENTS.join(", "));
-      }
-
-      const result = await runYtDlp(args);
       const data = JSON.parse(result.stdout);
 
       const formats = (data.formats || [])
-        .filter((item) => item.url && item.height)
+        .filter((item) => item.height)
         .map((item) => ({
           format_id: item.format_id,
           ext: item.ext,
@@ -163,10 +150,7 @@ export async function downloadVideoFile(url, quality) {
   const downloadsDir = path.resolve("downloads");
   fs.mkdirSync(downloadsDir, { recursive: true });
 
-  const output = path.join(
-    downloadsDir,
-    `video-${Date.now()}.mp4`
-  );
+  const output = path.join(downloadsDir, `video-${Date.now()}.mp4`);
 
   let formatSelector;
 
