@@ -8,12 +8,13 @@ const execFileAsync = promisify(execFile);
 const YT_DLP_PATH = process.env.YT_DLP_PATH || "yt-dlp";
 const YT_DLP_TIMEOUT = Number(process.env.YT_DLP_TIMEOUT_MS || 120000);
 const YT_DLP_RETRIES = Number(process.env.YT_DLP_RETRIES || 2);
+const YT_DLP_PROXY = (process.env.YT_DLP_PROXY || process.env.HTTPS_PROXY || "").trim();
 const POT_SCRIPT_PATH =
   process.env.YT_DLP_POT_SCRIPT_PATH ||
   path.resolve(process.cwd(), "../bgutil-ytdlp-pot-provider/server/build/generate_once.js");
 
 function baseArgs() {
-  return [
+  const args = [
     "--js-runtimes",
     "node",
     "--no-playlist",
@@ -28,6 +29,12 @@ function baseArgs() {
     "--extractor-args",
     `youtubepot-bgutilscript:script_path=${POT_SCRIPT_PATH}`,
   ];
+
+  if (YT_DLP_PROXY) {
+    args.push("--proxy", YT_DLP_PROXY);
+  }
+
+  return args;
 }
 
 function formatDuration(seconds) {
@@ -53,13 +60,13 @@ function cleanError(error) {
 
   if (/429|too many requests/i.test(text)) {
     return new Error(
-      "YouTube temporarily rate-limited this server (HTTP 429). Please wait and try again."
+      "YouTube temporarily rate-limited this server (HTTP 429). Check YT_DLP_PROXY on Render and try again."
     );
   }
 
   if (/403|forbidden|failed to extract any player response/i.test(text)) {
     return new Error(
-      "YouTube rejected the Render request (HTTP 403). The PO-token provider could not satisfy this request, or the Render IP is temporarily blocked."
+      "YouTube rejected the request (HTTP 403). Check that YT_DLP_PROXY is a working proxy and that the proxy allows HTTPS traffic."
     );
   }
 
@@ -86,6 +93,7 @@ export async function fetchVideoInfo(url) {
   console.log("YT-DLP PATH:", YT_DLP_PATH);
   console.log("VIDEO URL:", url);
   console.log("PO TOKEN SCRIPT:", POT_SCRIPT_PATH);
+  console.log("YT-DLP PROXY:", YT_DLP_PROXY ? "configured" : "not configured");
 
   const version = await runYtDlp(["--version"]);
   console.log("YT-DLP VERSION:", version.stdout.trim());
