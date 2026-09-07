@@ -1,16 +1,14 @@
 // src/services/videoApi.jsx
 
-const API_URL ="https://video-downloader-954d.onrender.com/api"
+const API_URL = "https://video-downloader-954d.onrender.com/api/video";
 
 export async function getVideoInfo(url) {
   try {
     const response = await fetch(`${API_URL}/info`, {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         url,
       }),
@@ -25,7 +23,9 @@ export async function getVideoInfo(url) {
     }
 
     if (!response.ok) {
-      throw new Error(data.message || "Failed to fetch video information.");
+      throw new Error(
+        data.message || "Failed to fetch video information."
+      );
     }
 
     return data;
@@ -34,7 +34,7 @@ export async function getVideoInfo(url) {
 
     if (error.message.includes("Failed to fetch")) {
       throw new Error(
-        "Cannot connect to server. Make sure backend is running.",
+        "Cannot connect to server. Make sure backend is running."
       );
     }
 
@@ -46,11 +46,9 @@ export async function downloadVideo(url, quality) {
   try {
     const response = await fetch(`${API_URL}/download`, {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         url,
         quality,
@@ -62,7 +60,6 @@ export async function downloadVideo(url, quality) {
 
       try {
         const data = await response.json();
-
         errorMessage = data.message || errorMessage;
       } catch {}
 
@@ -76,7 +73,6 @@ export async function downloadVideo(url, quality) {
     const link = document.createElement("a");
 
     link.href = fileURL;
-
     link.download = "video.mp4";
 
     document.body.appendChild(link);
