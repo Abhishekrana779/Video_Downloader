@@ -5,7 +5,15 @@ import path from "path";
 
 const execFileAsync = promisify(execFile);
 
-const YT_DLP_PATH = "/usr/local/bin/yt-dlp";
+const YT_DLP_PATH = "yt-dlp";
+
+const YT_DLP_COMMON_ARGS = [
+  "--js-runtimes",
+  "node",
+  "--no-playlist",
+  "--extractor-args",
+  "youtube:player_client=android,web",
+];
 
 function formatDuration(seconds) {
   if (!seconds) return "--:--";
@@ -16,20 +24,14 @@ function formatDuration(seconds) {
   return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
-const COMMON_ARGS = [
-  "--js-runtimes",
-  "node",
-  "--no-playlist",
-  "--extractor-args",
-  "youtube:player_client=android,web",
-];
-
 export async function fetchVideoInfo(url) {
   try {
+    console.log("Fetching video:", url);
+
     const { stdout, stderr } = await execFileAsync(
       YT_DLP_PATH,
       [
-        ...COMMON_ARGS,
+        ...YT_DLP_COMMON_ARGS,
         "-J",
         url,
       ],
@@ -39,7 +41,7 @@ export async function fetchVideoInfo(url) {
     );
 
     if (stderr) {
-      console.log("yt-dlp stderr:", stderr);
+      console.log("yt-dlp:", stderr);
     }
 
     const data = JSON.parse(stdout);
@@ -60,11 +62,7 @@ export async function fetchVideoInfo(url) {
     }
 
     const formats = [...qualityMap.values()]
-      .sort((a, b) => b.height - a.height)
-      .map((item) => ({
-        quality: item.quality,
-        height: item.height,
-      }));
+      .sort((a, b) => b.height - a.height);
 
     return {
       title: data.title,
@@ -74,16 +72,12 @@ export async function fetchVideoInfo(url) {
       formats,
     };
   } catch (error) {
-    console.error("========== FETCH ERROR ==========");
-
+    console.error("========== YT-DLP INFO ERROR ==========");
     console.error("Message:", error.message);
-    console.error("STDOUT:", error.stdout);
     console.error("STDERR:", error.stderr);
 
     throw new Error(
-      error.stderr ||
-        error.message ||
-        "Failed to fetch video information"
+      error.stderr || "Failed to fetch video information"
     );
   }
 }
@@ -93,7 +87,9 @@ export async function downloadVideoFile(url, quality) {
     const downloadsDir = path.resolve("downloads");
 
     if (!fs.existsSync(downloadsDir)) {
-      fs.mkdirSync(downloadsDir, { recursive: true });
+      fs.mkdirSync(downloadsDir, {
+        recursive: true,
+      });
     }
 
     const output = path.join(
@@ -127,10 +123,10 @@ export async function downloadVideoFile(url, quality) {
       formatSelector
     );
 
-    const { stderr } = await execFileAsync(
+    await execFileAsync(
       YT_DLP_PATH,
       [
-        ...COMMON_ARGS,
+        ...YT_DLP_COMMON_ARGS,
 
         "-f",
         formatSelector,
@@ -145,28 +141,20 @@ export async function downloadVideoFile(url, quality) {
       }
     );
 
-    if (stderr) {
-      console.log("yt-dlp stderr:", stderr);
-    }
-
     if (!fs.existsSync(output)) {
       throw new Error(
-        "yt-dlp completed but the video file was not created."
+        "Video file was not created."
       );
     }
 
     return output;
   } catch (error) {
-    console.error("========== DOWNLOAD ERROR ==========");
-
+    console.error("========== YT-DLP DOWNLOAD ERROR ==========");
     console.error("Message:", error.message);
-    console.error("STDOUT:", error.stdout);
     console.error("STDERR:", error.stderr);
 
     throw new Error(
-      error.stderr ||
-        error.message ||
-        "Failed to download video"
+      error.stderr || "Failed to download video"
     );
   }
 }
