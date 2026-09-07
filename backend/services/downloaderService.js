@@ -5,7 +5,7 @@ import path from "path";
 
 const execFileAsync = promisify(execFile);
 
-const YT_DLP_PATH = "yt-dlp";
+const YT_DLP_PATH = "/usr/local/bin/yt-dlp";
 
 function formatDuration(seconds) {
   if (!seconds) return "--:--";
@@ -16,17 +16,31 @@ function formatDuration(seconds) {
   return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
+const COMMON_ARGS = [
+  "--js-runtimes",
+  "node",
+  "--no-playlist",
+  "--extractor-args",
+  "youtube:player_client=android,web",
+];
+
 export async function fetchVideoInfo(url) {
   try {
-    const { stdout } = await execFileAsync(YT_DLP_PATH, [
-      "--js-runtimes",
-      "node",
+    const { stdout, stderr } = await execFileAsync(
+      YT_DLP_PATH,
+      [
+        ...COMMON_ARGS,
+        "-J",
+        url,
+      ],
+      {
+        maxBuffer: 50 * 1024 * 1024,
+      }
+    );
 
-      "-J",
-      "--no-playlist",
-
-      url,
-    ]);
+    if (stderr) {
+      console.log("yt-dlp stderr:", stderr);
+    }
 
     const data = JSON.parse(stdout);
 
@@ -61,9 +75,16 @@ export async function fetchVideoInfo(url) {
     };
   } catch (error) {
     console.error("========== FETCH ERROR ==========");
-    console.error(error);
 
-    throw error;
+    console.error("Message:", error.message);
+    console.error("STDOUT:", error.stdout);
+    console.error("STDERR:", error.stderr);
+
+    throw new Error(
+      error.stderr ||
+        error.message ||
+        "Failed to fetch video information"
+    );
   }
 }
 
@@ -101,28 +122,51 @@ export async function downloadVideoFile(url, quality) {
         "best[ext=mp4]/bestvideo[ext=mp4]+bestaudio/best";
     }
 
-    console.log("Downloading with format:", formatSelector);
+    console.log(
+      "Downloading with format:",
+      formatSelector
+    );
 
-    await execFileAsync(YT_DLP_PATH, [
-      "--js-runtimes",
-      "node",
+    const { stderr } = await execFileAsync(
+      YT_DLP_PATH,
+      [
+        ...COMMON_ARGS,
 
-      "-f",
-      formatSelector,
+        "-f",
+        formatSelector,
 
-      "--no-playlist",
+        "-o",
+        output,
 
-      "-o",
-      output,
+        url,
+      ],
+      {
+        maxBuffer: 50 * 1024 * 1024,
+      }
+    );
 
-      url,
-    ]);
+    if (stderr) {
+      console.log("yt-dlp stderr:", stderr);
+    }
+
+    if (!fs.existsSync(output)) {
+      throw new Error(
+        "yt-dlp completed but the video file was not created."
+      );
+    }
 
     return output;
   } catch (error) {
     console.error("========== DOWNLOAD ERROR ==========");
-    console.error(error);
 
-    throw error;
+    console.error("Message:", error.message);
+    console.error("STDOUT:", error.stdout);
+    console.error("STDERR:", error.stderr);
+
+    throw new Error(
+      error.stderr ||
+        error.message ||
+        "Failed to download video"
+    );
   }
 }
