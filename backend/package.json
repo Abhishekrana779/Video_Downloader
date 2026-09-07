@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "build": "npm install && chmod +x ./yt-dlp 2>/dev/null || true && ./yt-dlp --update-to nightly || true",
+    "build": "npm install && chmod +x ./yt-dlp 2>/dev/null || true && ./yt-dlp --update-to nightly || true && python3 -m pip install --user -U bgutil-ytdlp-pot-provider && rm -rf ../bgutil-ytdlp-pot-provider && git clone --depth 1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git ../bgutil-ytdlp-pot-provider && cd ../bgutil-ytdlp-pot-provider/server && npm ci && npx tsc",
     "start": "node server.js"
   },
   "dependencies": {
