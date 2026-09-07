@@ -1,6 +1,6 @@
 // src/services/videoApi.jsx
 
-const API_URL ="https://video-downloader-bcw5.onrender.com"
+const API_URL ="https://video-downloader-954d.onrender.com"
 
 export async function getVideoInfo(url) {
   try {
