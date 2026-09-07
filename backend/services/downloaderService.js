@@ -26,59 +26,37 @@ function formatDuration(seconds) {
 
 export async function fetchVideoInfo(url) {
   try {
-    console.log("Fetching video:", url);
+    console.log("YT-DLP PATH:", YT_DLP_PATH);
+    console.log("VIDEO URL:", url);
 
-    const { stdout, stderr } = await execFileAsync(
-      YT_DLP_PATH,
-      [
-        ...YT_DLP_COMMON_ARGS,
-        "-J",
-        url,
-      ],
-      {
-        maxBuffer: 50 * 1024 * 1024,
-      }
-    );
+    const { stdout, stderr } = await execFileAsync(YT_DLP_PATH, [
+      "--version",
+    ]);
 
-    if (stderr) {
-      console.log("yt-dlp:", stderr);
-    }
+    console.log("YT-DLP VERSION:", stdout);
+    console.log("YT-DLP STDERR:", stderr);
 
-    const data = JSON.parse(stdout);
+    const result = await execFileAsync(YT_DLP_PATH, [
+      "--js-runtimes",
+      "node",
+      "--no-playlist",
+      "-J",
+      url,
+    ]);
 
-    const qualityMap = new Map();
+    console.log("YT-DLP OUTPUT RECEIVED");
 
-    for (const item of data.formats || []) {
-      if (
-        item.ext === "mp4" &&
-        item.height &&
-        item.height > 0
-      ) {
-        qualityMap.set(item.height, {
-          quality: `${item.height}p`,
-          height: item.height,
-        });
-      }
-    }
+    const data = JSON.parse(result.stdout);
 
-    const formats = [...qualityMap.values()]
-      .sort((a, b) => b.height - a.height);
-
-    return {
-      title: data.title,
-      thumbnail: data.thumbnail,
-      duration: formatDuration(data.duration),
-      uploader: data.uploader,
-      formats,
-    };
+    // ...rest of your code
   } catch (error) {
-    console.error("========== YT-DLP INFO ERROR ==========");
-    console.error("Message:", error.message);
-    console.error("STDERR:", error.stderr);
+    console.error("========== YT-DLP ERROR ==========");
+    console.error("message:", error.message);
+    console.error("stdout:", error.stdout);
+    console.error("stderr:", error.stderr);
+    console.error("code:", error.code);
 
-    throw new Error(
-      error.stderr || "Failed to fetch video information"
-    );
+    throw error;
   }
 }
 
